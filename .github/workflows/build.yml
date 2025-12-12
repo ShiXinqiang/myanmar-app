@@ -1,0 +1,46 @@
+name: Auto Build App
+
+on:
+  push:
+    paths: ['app/**'] # 只在修改app文件夹时触发
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./app
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Java
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'zulu'
+        java-version: '17'
+
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        channel: 'stable'
+
+    # 【黑科技】因为你只上传了2个文件，这里自动帮你生成剩下的几百个文件
+    - name: Scaffold Missing Files
+      run: |
+        flutter create . --org com.baobo.app
+        # 强制注入联网权限，否则没法上传视频
+        sed -i 's|<application|<uses-permission android:name="android.permission.INTERNET"/><uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/><application|' android/app/src/main/AndroidManifest.xml
+
+    - name: Get Dependencies
+      run: flutter pub get
+
+    - name: Build APK
+      run: flutter build apk --release --no-tree-shake-icons
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v3
+      with:
+        name: baobo-app-v1
+        path: app/build/app/outputs/flutter-apk/app-release.apk

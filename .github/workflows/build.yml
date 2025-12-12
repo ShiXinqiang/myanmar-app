@@ -3,7 +3,7 @@ name: Auto Build App
 on:
   push:
     paths: ['app/**'] # 只在修改app文件夹时触发
-  workflow_dispatch:
+  workflow_dispatch:      # 允许手动点击运行
 
 jobs:
   build:
@@ -13,10 +13,12 @@ jobs:
         working-directory: ./app
 
     steps:
-    - uses: actions/checkout@v3
+    # 升级到 v4
+    - uses: actions/checkout@v4
 
+    # 升级到 v4
     - name: Set up Java
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         distribution: 'zulu'
         java-version: '17'
@@ -26,11 +28,10 @@ jobs:
       with:
         channel: 'stable'
 
-    # 【黑科技】因为你只上传了2个文件，这里自动帮你生成剩下的几百个文件
     - name: Scaffold Missing Files
       run: |
         flutter create . --org com.baobo.app
-        # 强制注入联网权限，否则没法上传视频
+        # 强制注入联网权限
         sed -i 's|<application|<uses-permission android:name="android.permission.INTERNET"/><uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/><application|' android/app/src/main/AndroidManifest.xml
 
     - name: Get Dependencies
@@ -39,8 +40,9 @@ jobs:
     - name: Build APK
       run: flutter build apk --release --no-tree-shake-icons
 
+    # 【关键修改】这里升级到了 v4
     - name: Upload APK
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: baobo-app-v1
         path: app/build/app/outputs/flutter-apk/app-release.apk

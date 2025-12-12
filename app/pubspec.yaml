@@ -1,0 +1,19 @@
+name: baobotong
+description: A new Flutter project.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.1.0
+  video_player: ^2.8.1
+  chewie: ^1.7.0
+  image_picker: ^1.0.4
+  intl: ^0.18.1
+
+flutter:
+  uses-material-design: true
